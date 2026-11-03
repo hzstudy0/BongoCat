@@ -225,6 +225,14 @@ impl SettingsView {
                         .set_motion_audio_enabled(expected_config_revision, enabled)
                         .await
                 }
+                Some(SettingValue::TypingMeowEnabled {
+                    expected_config_revision,
+                    enabled,
+                }) => {
+                    client
+                        .set_typing_meow_enabled(expected_config_revision, enabled)
+                        .await
+                }
                 Some(SettingValue::CommandShortcutsEnabled {
                     expected_config_revision,
                     enabled,

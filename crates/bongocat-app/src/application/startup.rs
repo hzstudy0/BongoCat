@@ -311,6 +311,24 @@ impl Application {
         client
             .wait_for_command(sequence, RUNTIME_TIMEOUT)
             .ok_or(ApplicationError::RuntimeDidNotPublish)?;
+        // The bundled typing-meow clip sits beside the preset models, under
+        // `<resources>/audio/typing_meow.flac`. The audio backend (rodio/symphonia)
+        // in this build only decodes FLAC, so a WAV would be silently rejected.
+        // A missing file leaves the feature silently unavailable rather than failing
+        // startup.
+        let typing_meow_sound = preset_root
+            .parent()
+            .map(|resources| resources.join("audio").join("typing_meow.flac"))
+            .filter(|path| path.is_file());
+        let sequence = client
+            .send(RuntimeCommand::SetTypingMeow {
+                enabled: config.model.play_typing_meow && typing_meow_sound.is_some(),
+                sound: typing_meow_sound.clone(),
+            })
+            .map_err(ApplicationError::RuntimeCommand)?;
+        client
+            .wait_for_command(sequence, RUNTIME_TIMEOUT)
+            .ok_or(ApplicationError::RuntimeDidNotPublish)?;
         let active_model_origin =
             configured_model.map(|selected| model_origin_from_config(selected.source));
         let active_model_id =
@@ -327,6 +345,7 @@ impl Application {
             preset_covers,
             active_model_origin,
             active_model_id,
+            typing_meow_sound,
             last_gamepad_model: None,
             last_other_model: None,
             // The remembered expressions are already in the configuration; this is

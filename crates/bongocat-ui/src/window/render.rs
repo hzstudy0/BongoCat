@@ -828,6 +828,31 @@ impl Render for SettingsView {
                 SettingItem::new(
                     bongocat_i18n::text(
                         language.catalog_locale(),
+                        "settings.models.behavior.typing_meow.label",
+                    ),
+                    SettingField::switch(
+                        {
+                            let view = view_entity.clone();
+                            move |app| {
+                                view.read(app)
+                                    .snapshot
+                                    .as_ref()
+                                    .is_some_and(|s| s.typing_meow_enabled)
+                            }
+                        },
+                        {
+                            let view = view_entity.clone();
+                            move |value, app| {
+                                view.update(app, |view, cx| {
+                                    view.set_typing_meow_enabled(value, cx)
+                                });
+                            }
+                        },
+                    ),
+                ),
+                SettingItem::new(
+                    bongocat_i18n::text(
+                        language.catalog_locale(),
                         "settings.models.behavior.remember_last_expression.label",
                     ),
                     SettingField::switch(

@@ -429,6 +429,9 @@
         "motion_audio": {
           "label": "播放動作音效"
         },
+        "typing_meow": {
+          "label": "打字時喵一聲"
+        },
         "remember_last_expression": {
           "label": "記住每個模型上次使用的表情"
         },

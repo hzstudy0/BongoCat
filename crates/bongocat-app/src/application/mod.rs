@@ -25,6 +25,7 @@ use bongocat_model_store::{ModelStore, PresetCoverStore};
 use bongocat_render::RenderConsumer;
 use bongocat_runtime::{RuntimeClient, RuntimeOwner};
 use bongocat_update::UpdateDiagnostics;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 mod diagnostics;
@@ -57,6 +58,10 @@ pub struct Application {
     /// configured selection: a fresh configuration has no selection at all and
     /// startup still activates the standard preset.
     active_model_id: Option<ModelId>,
+    /// The bundled meow clip the runtime caches, resolved once at startup from
+    /// `<preset_root>/../audio/typing_meow.wav`. `None` when the asset is absent,
+    /// in which case the setting stays silent no matter the toggle.
+    typing_meow_sound: Option<PathBuf>,
     /// The last model activated from the gamepad-mode catalog, and the last one
     /// activated from any other mode. This is what `gamepad_auto_switch` means by
     /// "the last model used": session memory rather than configuration, because it

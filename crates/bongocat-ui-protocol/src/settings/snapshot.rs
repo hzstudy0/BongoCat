@@ -42,6 +42,8 @@ pub struct SettingsSnapshot {
     pub overlay_visible: bool,
     pub overlay: SettingsOverlay,
     pub motion_audio_enabled: bool,
+    /// Whether a fresh key press plays the bundled meow clip.
+    pub typing_meow_enabled: bool,
     /// Whether the application command bindings are allowed to reach the
     /// platform shortcut table. The shortcuts page renders it as the "disable
     /// window shortcuts" switch above the command rows.

@@ -74,6 +74,8 @@ pub(crate) fn run_worker(receiver: Receiver<CommandEnvelope>, bootstrap: Runtime
     let mut random_behavior_scheduler = RandomBehaviorScheduler::new(system_seed());
     let mut next_automatic_event_sequence = AUTOMATIC_SEQUENCE_START;
     let mut motion_audio_enabled = initial_motion_audio_enabled;
+    let mut typing_meow_enabled = false;
+    let mut typing_meow_sound: Option<PathBuf> = None;
     let mut pending_model = None;
     let mut deferred_commands = VecDeque::new();
     let mut next_motion_event_sequence = 0u64;
@@ -97,6 +99,7 @@ pub(crate) fn run_worker(receiver: Receiver<CommandEnvelope>, bootstrap: Runtime
             &mut active_motions,
             &mut active_expression,
             &motion_audio,
+            typing_meow_sound.as_ref(),
             &mut next_motion_event_sequence,
             &mut random_behavior_scheduler,
             overlay_visible,
@@ -323,6 +326,34 @@ pub(crate) fn run_worker(receiver: Receiver<CommandEnvelope>, bootstrap: Runtime
                             current.last_command_sequence = Some(sequence);
                         });
                     }
+                    WorkerCommand::Product(RuntimeCommand::SetTypingMeow { enabled, sound }) => {
+                        let preparing = !typing_meow_enabled && enabled;
+                        typing_meow_enabled = enabled;
+                        // Runtime toggle commands carry only `enabled`; the clip
+                        // path was resolved once at startup, so a `None` here must
+                        // not wipe it out.
+                        if let Some(sound) = sound {
+                            typing_meow_sound = Some(sound);
+                        }
+                        if preparing
+                            && let Some(path) = typing_meow_sound.as_ref()
+                        {
+                            // Cache the clip once when the feature turns on. Model
+                            // activation's `ActivatePrepared` retains this path because
+                            // the activation helper unions it into the keep list.
+                            let _ =
+                                motion_audio.try_publish_with_sequence(|sequence| {
+                                    MotionAudioCommand::Prepare {
+                                        sequence,
+                                        paths: vec![path.clone()],
+                                    }
+                                });
+                        }
+                        publish(&snapshot, |current| {
+                            current.last_command_failure = None;
+                            current.last_command_sequence = Some(sequence);
+                        });
+                    }
                     WorkerCommand::Product(RuntimeCommand::SetInputBindings(bindings)) => {
                         input_bindings = Arc::unwrap_or_clone(bindings);
                         publish(&snapshot, |current| {
@@ -387,6 +418,21 @@ pub(crate) fn run_worker(receiver: Receiver<CommandEnvelope>, bootstrap: Runtime
                     }
                     WorkerCommand::Product(RuntimeCommand::ApplyInput(envelope)) => {
                         let envelope = Arc::unwrap_or_clone(envelope);
+                        // A genuine new key press, before `apply` owns the event:
+                        // a held key's auto-repeat down edge is already in the
+                        // pressed set, so only the up->down transition meows.
+                        let fresh_key_press = match &envelope.event {
+                            InputEvent::Edge {
+                                control,
+                                edge: InputEdge::Down,
+                                source: InputSource::Capture,
+                                ..
+                            } => {
+                                matches!(control, InputControl::Key(_))
+                                    && !input_state.pressed.contains_key(control)
+                            }
+                            _ => false,
+                        };
                         let input_reset = matches!(envelope.event, InputEvent::Reset { .. });
                         let connected = match &envelope.event {
                             InputEvent::GamepadConnected { connection, at } => {
@@ -402,6 +448,21 @@ pub(crate) fn run_worker(receiver: Receiver<CommandEnvelope>, bootstrap: Runtime
                         let before = input_state.diagnostics;
                         let disposition = input_state.apply(envelope);
                         let after = input_state.diagnostics;
+                        if fresh_key_press
+                            && typing_meow_enabled
+                            && let Some(path) = typing_meow_sound.as_ref()
+                        {
+                            // Non-blocking best effort, like every other motion
+                            // audio command: a dropped meow must not stall a frame.
+                            let _ =
+                                motion_audio.try_publish_with_sequence(|sequence| {
+                                    MotionAudioCommand::Play {
+                                        sequence,
+                                        path: path.clone(),
+                                        volume: MotionAudioVolume::FULL,
+                                    }
+                                });
+                        }
                         if let Some(activity) = activity
                             && (after.keyboard_activity != before.keyboard_activity
                                 || after.keyboard_release != before.keyboard_release
@@ -795,6 +856,7 @@ pub(crate) fn run_worker(receiver: Receiver<CommandEnvelope>, bootstrap: Runtime
                     &mut active_motions,
                     &mut active_expression,
                     &motion_audio,
+                    typing_meow_sound.as_ref(),
                     &mut next_motion_event_sequence,
                     &mut random_behavior_scheduler,
                     overlay_visible,

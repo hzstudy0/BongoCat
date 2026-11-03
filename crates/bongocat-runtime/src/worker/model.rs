@@ -13,6 +13,7 @@ use super::audio::{
 };
 use super::input::compose_model_input;
 use super::renderer::evaluate_renderer;
+use std::path::PathBuf;
 use crate::*;
 
 pub(crate) struct PendingModelActivation {
@@ -118,6 +119,7 @@ pub(crate) fn process_model_commit_feedback(
     active_motions: &mut Vec<ActiveMotionSnapshot>,
     active_expression: &mut Option<ActiveExpressionSnapshot>,
     motion_audio: &MotionAudioClient,
+    typing_meow_sound: Option<&PathBuf>,
     next_motion_event_sequence: &mut u64,
     random_behavior_scheduler: &mut RandomBehaviorScheduler,
     overlay_visible: bool,
@@ -194,7 +196,15 @@ pub(crate) fn process_model_commit_feedback(
     let pending = pending_model.take().expect("checked pending model");
     if renderer.commit(pending.token) {
         let command_sequence = pending.token.command_sequence;
-        let audio_paths = model_audio_paths(&pending.model);
+        let mut audio_paths = model_audio_paths(&pending.model);
+        // The typing-meow clip is a UI sound, not a model motion sound: keep it
+        // through `ActivatePrepared` so a model switch never evicts it from the
+        // prepared cache the next key press plays from.
+        if let Some(path) = typing_meow_sound
+            && !audio_paths.contains(path)
+        {
+            audio_paths.push(path.clone());
+        }
         if let Some(bindings) = pending.input_bindings {
             *input_bindings = Arc::unwrap_or_clone(bindings);
         }

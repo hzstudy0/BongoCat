@@ -429,6 +429,9 @@
         "motion_audio": {
           "label": "Lire les sons des mouvements"
         },
+        "typing_meow": {
+          "label": "Miauler en tapant"
+        },
         "remember_last_expression": {
           "label": "Mémoriser la dernière expression de chaque modèle"
         },

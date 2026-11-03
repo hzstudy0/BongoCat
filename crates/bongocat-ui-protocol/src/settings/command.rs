@@ -106,6 +106,11 @@ pub enum SettingsCommand {
         enabled: bool,
         reply: SettingsReply<Result<SettingsSnapshot, SettingsError>>,
     },
+    SetTypingMeowEnabled {
+        expected_config_revision: u64,
+        enabled: bool,
+        reply: SettingsReply<Result<SettingsSnapshot, SettingsError>>,
+    },
     SetBehaviorShortcutsEnabled {
         expected_config_revision: u64,
         enabled: bool,

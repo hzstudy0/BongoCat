@@ -29,6 +29,7 @@ pub(crate) enum PendingOperation {
     OverlayHoverHideDelay,
     OverlayIdleHideDelay,
     MotionAudio,
+    TypingMeow,
     CommandShortcuts,
     BehaviorShortcuts,
     RandomBehavior,
@@ -122,6 +123,10 @@ pub(crate) enum SettingValue {
         settings: SettingsOverlay,
     },
     MotionAudioEnabled {
+        expected_config_revision: u64,
+        enabled: bool,
+    },
+    TypingMeowEnabled {
         expected_config_revision: u64,
         enabled: bool,
     },

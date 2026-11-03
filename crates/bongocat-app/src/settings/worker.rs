@@ -353,6 +353,21 @@ pub(super) fn run_service(
                     .map(|_| snapshot(&application, &mut clock, false, startup_item.state()));
                 let _ = reply.respond(result);
             }
+            SettingsCommand::SetTypingMeowEnabled {
+                expected_config_revision,
+                enabled,
+                reply,
+            } => {
+                let result = check_revision(&application, expected_config_revision)
+                    .and_then(|()| {
+                        application
+                            .set_typing_meow_enabled(enabled)
+                            .map(|_| ())
+                            .map_err(map_application_error)
+                    })
+                    .map(|_| snapshot(&application, &mut clock, false, startup_item.state()));
+                let _ = reply.respond(result);
+            }
             SettingsCommand::SetBehaviorShortcutsEnabled {
                 expected_config_revision,
                 enabled,

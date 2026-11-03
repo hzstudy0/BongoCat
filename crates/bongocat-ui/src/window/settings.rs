@@ -803,6 +803,28 @@ impl SettingsView {
         );
     }
 
+    /// Whether a fresh key press plays the bundled meow clip.
+    ///
+    /// A plain switch like the motion-audio one: one click is one write, sent
+    /// without a debounce because there is no slider state to keep in step.
+    pub(super) fn set_typing_meow_enabled(&mut self, enabled: bool, cx: &mut Context<Self>) {
+        let Some(expected_config_revision) = self
+            .snapshot
+            .as_ref()
+            .and_then(|snapshot| snapshot.config_revision)
+        else {
+            return;
+        };
+        self.start_request(
+            PendingOperation::TypingMeow,
+            Some(SettingValue::TypingMeowEnabled {
+                expected_config_revision,
+                enabled,
+            }),
+            cx,
+        );
+    }
+
     /// Whether a model returns to the expression the user last chose for it.
     ///
     /// Sent without a debounce, like the other switches: one click is one write.

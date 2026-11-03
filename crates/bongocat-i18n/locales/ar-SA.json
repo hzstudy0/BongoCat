@@ -429,6 +429,9 @@
         "motion_audio": {
           "label": "تشغيل أصوات الحركات"
         },
+        "typing_meow": {
+          "label": "مواء عند الكتابة"
+        },
         "remember_last_expression": {
           "label": "تذكّر آخر تعبير لكل نموذج"
         },

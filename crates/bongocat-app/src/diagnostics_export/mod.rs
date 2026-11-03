@@ -478,6 +478,7 @@ mod tests {
             overlay_visible: true,
             overlay: SettingsOverlay::default(),
             motion_audio_enabled: true,
+            typing_meow_enabled: false,
             command_shortcuts_enabled: true,
             behavior_shortcuts_enabled: true,
             maximum_fps: 60,

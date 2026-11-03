@@ -43,6 +43,13 @@ pub struct ModelConfig {
     /// implementation, which recorded an enabled default; the reasoning lives
     /// in `shared/config/contract.md`.
     pub play_motion_audio: bool,
+    /// Whether a fresh keyboard press plays the bundled meow clip.
+    ///
+    /// Defaults to `false` and carries `#[serde(default)]` so a configuration
+    /// written before the feature existed still loads as the silent default
+    /// rather than failing the strict v1 parse.
+    #[serde(default)]
+    pub play_typing_meow: bool,
     /// Whether keyboard input is excluded from the model's input projection.
     pub ignore_keyboard: bool,
     /// Whether gamepad input is excluded from the model's input projection.

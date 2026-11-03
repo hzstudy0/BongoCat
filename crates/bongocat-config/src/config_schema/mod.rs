@@ -103,6 +103,7 @@ impl Default for NativeConfig {
                 mirror_pointer_tracking_horizontal: false,
                 mirror_pointer_tracking_vertical: false,
                 play_motion_audio: false,
+                play_typing_meow: false,
                 ignore_keyboard: false,
                 ignore_gamepad: false,
                 show_all_pressed_keys: false,

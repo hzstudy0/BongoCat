@@ -228,6 +228,34 @@ impl Application {
         Ok(snapshot)
     }
 
+    pub fn set_typing_meow_enabled(
+        &mut self,
+        enabled: bool,
+    ) -> Result<RuntimeSnapshot, ApplicationError> {
+        let mut next_config = self.config.clone();
+        next_config.model.play_typing_meow = enabled;
+        let next_revision = self
+            .config_store
+            .commit_if_revision(&next_config, self.ready_config_revision()?)?;
+
+        // Reuse the clip path startup resolved, so the runtime keeps the exact
+        // path it has cached. The feature is only honoured when the asset exists.
+        let sound = self.typing_meow_sound.clone();
+        let client = self.runtime.client();
+        let sequence = client
+            .send(RuntimeCommand::SetTypingMeow {
+                enabled: enabled && sound.is_some(),
+                sound,
+            })
+            .map_err(ApplicationError::RuntimeCommand)?;
+        let snapshot = client
+            .wait_for_command(sequence, RUNTIME_TIMEOUT)
+            .ok_or(ApplicationError::RuntimeDidNotPublish)?;
+        self.config = next_config;
+        self.config_revision = Some(next_revision);
+        Ok(snapshot)
+    }
+
     pub fn set_maximum_fps(
         &mut self,
         maximum_fps: u16,

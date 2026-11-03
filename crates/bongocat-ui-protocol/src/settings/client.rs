@@ -226,6 +226,19 @@ impl SettingsClient {
         .await
     }
 
+    pub async fn set_typing_meow_enabled(
+        &self,
+        expected_config_revision: u64,
+        enabled: bool,
+    ) -> Result<SettingsSnapshot, SettingsError> {
+        self.request(|reply| SettingsCommand::SetTypingMeowEnabled {
+            expected_config_revision,
+            enabled,
+            reply,
+        })
+        .await
+    }
+
     pub async fn set_behavior_shortcuts_enabled(
         &self,
         expected_config_revision: u64,
@@ -746,6 +759,18 @@ impl SettingsClient {
         enabled: bool,
     ) -> Result<SettingsSnapshot, SettingsError> {
         self.request_blocking(|reply| SettingsCommand::SetMotionAudioEnabled {
+            expected_config_revision,
+            enabled,
+            reply,
+        })
+    }
+
+    pub fn set_typing_meow_enabled_blocking(
+        &self,
+        expected_config_revision: u64,
+        enabled: bool,
+    ) -> Result<SettingsSnapshot, SettingsError> {
+        self.request_blocking(|reply| SettingsCommand::SetTypingMeowEnabled {
             expected_config_revision,
             enabled,
             reply,

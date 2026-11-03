@@ -258,6 +258,7 @@ pub(super) fn snapshot(
             keep_inside_screen: runtime.overlay_settings.keep_inside_screen,
         },
         motion_audio_enabled: runtime.motion_audio_enabled,
+        typing_meow_enabled: application.config().model.play_typing_meow,
         command_shortcuts_enabled: application.config().shortcuts.commands_enabled,
         behavior_shortcuts_enabled: application.config().shortcuts.model_behaviors_enabled,
         maximum_fps: runtime.maximum_fps,

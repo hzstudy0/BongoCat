@@ -31,6 +31,7 @@ use bongocat_render::{ModelCommitErrorCode, ModelCommitOutcome, ModelCommitToken
 use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
     fmt,
+    path::PathBuf,
     sync::{
         Arc, Condvar, Mutex,
         atomic::{AtomicBool, AtomicU64, Ordering},
@@ -470,6 +471,16 @@ pub enum RuntimeCommand {
     SetRandomBehaviorSettings(RandomBehaviorSettings),
     SetModelSettings(ModelSettings),
     SetMotionAudioEnabled(bool),
+    /// Configures the meow clip played on a fresh key press.
+    ///
+    /// Sent once at startup with the resolved clip path — `None` when the asset
+    /// is missing from the build — and again whenever the settings switch flips.
+    /// The worker caches the clip through the motion audio service and plays it
+    /// on a genuine keyboard down edge, deduplicated against auto-repeat.
+    SetTypingMeow {
+        enabled: bool,
+        sound: Option<PathBuf>,
+    },
     SetInputBindings(Arc<InputBindings>),
     SetGamepadAxisSettings(GamepadAxisSettings),
     SetCursorSettings(CursorSettings),

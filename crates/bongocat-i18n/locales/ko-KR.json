@@ -429,6 +429,9 @@
         "motion_audio": {
           "label": "모션 소리 재생"
         },
+        "typing_meow": {
+          "label": "타이핑할 때 야옹"
+        },
         "remember_last_expression": {
           "label": "각 모델의 마지막 표현식 기억"
         },

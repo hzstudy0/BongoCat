@@ -429,6 +429,9 @@
         "motion_audio": {
           "label": "Phát âm thanh của chuyển động"
         },
+        "typing_meow": {
+          "label": "Kêu meo khi gõ phím"
+        },
         "remember_last_expression": {
           "label": "Ghi nhớ biểu cảm cuối cùng của mỗi mô hình"
         },

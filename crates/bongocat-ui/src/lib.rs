@@ -173,6 +173,7 @@ pub(crate) mod tests {
             overlay_visible,
             overlay: SettingsOverlay::default(),
             motion_audio_enabled,
+            typing_meow_enabled: false,
             command_shortcuts_enabled: true,
             behavior_shortcuts_enabled: true,
             maximum_fps: 60,

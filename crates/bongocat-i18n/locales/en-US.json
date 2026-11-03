@@ -429,6 +429,9 @@
         "motion_audio": {
           "label": "Play motion sounds"
         },
+        "typing_meow": {
+          "label": "Meow on keypress"
+        },
         "remember_last_expression": {
           "label": "Remember the last expression of each model"
         },
